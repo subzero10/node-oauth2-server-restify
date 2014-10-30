@@ -1,6 +1,6 @@
-# Node OAuth2 Server [![Build Status](https://travis-ci.org/thomseddon/node-oauth2-server.png?branch=2.0)](https://travis-ci.org/thomseddon/node-oauth2-server)
+# Node OAuth2 Server
 
-Complete, compliant and well tested module for implementing an OAuth2 Server/Provider with [express](http://expressjs.com/) in [node.js](http://nodejs.org/)
+Complete, compliant and well tested module for implementing an OAuth2 Server/Provider with [resitfy](http://mcavage.me/node-restify/) in [node.js](http://nodejs.org/)
 
 ## Installation
 
@@ -10,32 +10,31 @@ npm install oauth2-server
 
 ## Quick Start
 
-The module provides two middlewares, one for authorization and routing, another for error handling, use them as you would any other middleware:
+The module provides one middleware for authorization and routing, use it as you would any other middleware:
 
 ```js
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    oauthserver = require('oauth2-server');
+var restify = require('restify'),
+    oauthserver = require('oauth2-server-restify');
 
-var app = express();
+var server = restify.createServer();
 
-app.use(bodyParser()); // REQUIRED
+server.use(restify.bodyParser({})); // REQUIRED
 
-app.oauth = oauthserver({
+server.oauth = oauthserver({
   model: {}, // See below for specification
   grants: ['password'],
   debug: true
 });
 
-app.all('/oauth/token', app.oauth.grant());
+server.post('/oauth/token', server.oauth.grant());
 
-app.get('/', app.oauth.authorise(), function (req, res) {
+server.get('/', server.oauth.authorise(), function (req, res, next) {
   res.send('Secret area');
+  next();
 });
 
-app.use(app.oauth.errorHandler());
 
-app.listen(3000);
+server.listen(3000);
 ```
 
 After running with node, visting http://127.0.0.1:3000 should present you with a json response saying your access token could not be found.
@@ -311,7 +310,7 @@ See: https://github.com/thomseddon/node-oauth2-server/blob/master/Changelog.md
 
 ## Credits
 
-Copyright (c) 2013 Thom Seddon
+Copyright (c) 2013 Thom Seddon & Marcos Sanz
 
 ## License
 
